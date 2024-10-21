@@ -1,0 +1,16 @@
+# Archivos y carpetas de Python
+__pycache__/
+*.pyc
+
+# Entorno virtual
+SFPrint/
+
+# Archivos de log
+*.log
+
+# Archivos de base de datos
+*.db.db
+.env
+# Archivos de audio temporal
+temp_audio.wav
+

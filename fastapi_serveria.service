@@ -1,0 +1,22 @@
+[Unit]
+Description=Servicio para el Servidor FastAPI de Angie
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+Group=audio
+PAMName=login
+# Agrega la línea siguiente si tienes un grupo `sound`
+# Group=sound
+WorkingDirectory=/opt/Sci-Fy-Print
+ExecStart=/opt/Sci-Fy-Print/start_serveria.sh
+Environment="PATH=/opt/Sci-Fy-Print/SFPrint/bin:/usr/bin"
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=3
+PIDFile=/var/run/fastapi_serveria.pid
+
+[Install]
+WantedBy=multi-user.target

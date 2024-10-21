@@ -1,0 +1,24 @@
+# /etc/systemd/system/event_listener.service
+
+[Unit]
+Description=Servicio para el Event Listener de la Impresora 3D
+After=network.target klipper.service moonraker.service fastapi_serveria.service
+Requires=klipper.service
+PartOf=klipper.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/Sci-Fy-Print
+ExecStart=/opt/Sci-Fy-Print/start_event_listener.sh
+Environment="PATH=/opt/Sci-Fy-Print/SFPrint/bin:/usr/bin"
+Restart=on-failure
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=3
+PIDFile=/var/run/event_listener.pid
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
