@@ -1,12 +1,11 @@
-# /opt/Sci-Fy-Print/tts.py
+# tts.py
 
 import os
 import time
 import threading
 from gtts import gTTS
-from pydub import AudioSegment
-from pydub.playback import play
 import queue
+import subprocess
 
 class TTS:
     def __init__(self, static_folder='static', lang='es', tld='com.mx'):
@@ -29,11 +28,12 @@ class TTS:
         self.play_thread = threading.Thread(target=self.play_audio_worker, daemon=True)
         self.play_thread.start()
 
-    def speak(self, text):
+    def speak(self, text, play_audio=True):
         """
-        Convierte el texto proporcionado a audio, lo guarda en la carpeta 'static' y lo reproduce.
+        Convierte el texto proporcionado a audio, lo guarda en la carpeta 'static' y lo reproduce si play_audio es True.
 
         :param text: Texto a convertir a audio.
+        :param play_audio: Booleano que determina si se reproduce el audio o no.
         :return: Ruta del archivo de audio generado o cadena vacía en caso de error.
         """
         # Generar un nombre de archivo único usando la marca de tiempo
@@ -50,8 +50,8 @@ class TTS:
             print(f"Error al generar el audio: {e}")
             return ""
         
-        # Añadir el archivo a la cola de reproducción
-        if filepath:
+        # Añadir el archivo a la cola de reproducción si play_audio es True
+        if play_audio and filepath:
             self.play_queue.put(filepath)
         
         # Gestionar la cantidad de archivos de audio
@@ -64,8 +64,8 @@ class TTS:
             filepath = self.play_queue.get()
             if filepath:
                 try:
-                    audio = AudioSegment.from_file(filepath)
-                    play(audio)
+                    # Reproducir el audio usando ffplay sin mostrar ventana y sin mensajes en consola
+                    subprocess.run(['ffplay', '-nodisp', '-autoexit', '-loglevel', 'quiet', filepath])
                     print(f"Audio reproducido: {os.path.basename(filepath)}")
                 except Exception as e:
                     print(f"Error al reproducir el audio: {e}")

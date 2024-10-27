@@ -9,9 +9,9 @@ Group=audio
 PAMName=login
 # Agrega la línea siguiente si tienes un grupo `sound`
 # Group=sound
-WorkingDirectory=/opt/Sci-Fy-Print
-ExecStart=/opt/Sci-Fy-Print/start_serveria.sh
-Environment="PATH=/opt/Sci-Fy-Print/SFPrint/bin:/usr/bin"
+WorkingDirectory=/opt/Say-Fi-Print
+ExecStart=/opt/Say-Fi-Print/start_serveria.sh
+Environment="PATH=/opt/Say-Fi-Print/SFPrint/bin:/usr/bin"
 Restart=on-failure
 RestartSec=5
 StartLimitInterval=60

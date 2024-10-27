@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 class TaskScheduler:
     def __init__(self, id):
-        self.details_file = "/Sci-Fy-Print/task_details.txt"
-        self.bat_file = "/Sci-Fy-Print/task.py"
+        self.details_file = "/Say-Fi-Print/task_details.txt"
+        self.bat_file = "/Say-Fi-Print/task.py"
         self.id = id
         self.scheduler = BackgroundScheduler()
         self.scheduler.start()

@@ -1,5 +1,3 @@
-# /opt/Sci-Fy-Print/event_listener.py
-
 import os
 import sys
 import fcntl
@@ -11,12 +9,13 @@ import threading
 import queue
 import logging
 from collections import deque
-import subprocess  # Añadido para reiniciar el servicio (opcional)
+import subprocess
+from dotenv import load_dotenv
 
 # Configurar el logging
 logging.basicConfig(
-    filename='/opt/Sci-Fy-Print/event_listener.log',
-    level=logging.INFO,  # Nivel de logging ajustado a INFO
+    filename='/opt/Say-Fi-Print/event_listener.log',
+    level=logging.INFO,
     format='%(asctime)s %(levelname)s:%(message)s'
 )
 
@@ -34,6 +33,13 @@ def create_lock():
         sys.exit(1)
 
 create_lock()
+
+# Cargar variables de entorno
+load_dotenv()
+EXPECTED_API_KEY = os.getenv("API_KEY")
+if not EXPECTED_API_KEY:
+    logging.error("API_KEY no está definida en el archivo .env")
+    raise Exception("API_KEY no está definida en el archivo .env")
 
 # Umbral de tolerancia para considerar que la temperatura ha sido alcanzada
 TEMPERATURE_TOLERANCE = 0.5
@@ -68,19 +74,17 @@ reconnection_event = threading.Event()
 reconnection_watcher_active = False
 RECONNECTION_TIMEOUT = 60  # Tiempo máximo de espera para reconexión en segundos
 
-# Crear la carpeta 'static' si no existe (puedes eliminarla si ya no se usa para audio)
-if not os.path.exists('static'):
-    os.makedirs('static')
-
 # Path for the running flag file
 RUNNING_FLAG = "/tmp/event_listener_running"
 
-# Dirección del servidor FastAPI (usar 127.0.0.1 en lugar de localhost)
-FASTAPI_SERVER_URL = "http://127.0.0.1:6996/process"
+# Dirección del servidor WebSocket (usar 127.0.0.1 en lugar de localhost)
+SERVER_WS_URL = "ws://127.0.0.1:6996/ws"
 
 # Configuración de la ventana de tiempo para filtrar duplicados (en segundos)
 DUPLICATE_WINDOW = 30
 recent_notifications = deque()
+
+server_ws = None  # WebSocket con el servidor
 
 def add_notification(message):
     current_time = time.time()
@@ -224,30 +228,21 @@ def process_notifications():
 
 def send_notification_to_server(message):
     """
-    Envía una notificación al servidor FastAPI mediante una solicitud POST con lógica de reintento.
+    Envía una notificación al servidor FastAPI a través de WebSocket.
     """
-    max_retries = 5
-    retry_delay = 2  # Segundos
-
-    payload = {"text": message}
-    headers = {"Content-Type": "application/json"}
-
-    for attempt in range(1, max_retries + 1):
-        try:
-            response = requests.post(FASTAPI_SERVER_URL, json=payload, headers=headers)
-            if response.status_code == 200:
-                logging.info(f"Notificación enviada al servidor: {message}")
-                return
-            else:
-                logging.error(f"Error al enviar notificación al servidor (Intento {attempt}): {response.text}")
-        except Exception as e:
-            logging.error(f"Excepción al enviar notificación al servidor (Intento {attempt}): {e}")
-
-        # Esperar antes de reintentar
-        time.sleep(retry_delay)
-
-    # Si después de reintentos no se pudo enviar
-    logging.error(f"No se pudo enviar la notificación al servidor después de {max_retries} intentos: {message}")
+    try:
+        if server_ws and server_ws.sock and server_ws.sock.connected:
+            payload = {
+                "API_KEY": EXPECTED_API_KEY,
+                "action": "process_text",
+                "text": message
+            }
+            server_ws.send(json.dumps(payload))
+            logging.info(f"Notificación enviada al servidor: {message}")
+        else:
+            logging.warning("No hay conexión WebSocket con el servidor. La notificación no se pudo enviar.")
+    except Exception as e:
+        logging.error(f"Error al enviar notificación al servidor: {e}")
 
 def get_current_temperatures():
     """
@@ -351,7 +346,6 @@ def on_message(ws, message):
                     watcher_thread = threading.Thread(target=watcher_reconnection, daemon=True)
                     watcher_thread.start()
                 logging.info("Se ha reiniciado el firmware de la impresora y se está intentando reconectar.")
-                #add_notification(message_text)
             elif method == 'notify_klippy_error':
                 message_text = f"Error: {method.replace('notify_', '').replace('_', ' ').title()}"
                 add_notification(message_text)
@@ -615,45 +609,38 @@ def connect_websocket():
         logging.warning("Conexión WebSocket cerrada. Reintentando en 5 segundos...")
         time.sleep(5)
 
-def is_connection_successful():
-    """
-    Verifica si el estado de Klipper es 'ready' o 'standby' mediante el endpoint /server/info.
-    Retorna True si está en uno de estos estados, False de lo contrario.
-    """
-    try:
-        response = requests.get('http://localhost:7125/server/info')
-        data = response.json()['result']
-        klippy_state = data.get('klippy_state', '').lower()
-        if klippy_state in ['ready', 'standby']:
-            return True
-        return False
-    except Exception as e:
-        logging.error(f"Error al verificar el estado de Klipper: {e}")
-        return False
+# Funciones para manejar el WebSocket con el servidor
+def connect_to_server_ws():
+    global server_ws
 
-def watcher_reconnection():
-    """
-    Espera a que se restablezca la conexión de Klipper dentro del tiempo de espera.
-    Envía notificaciones según el resultado.
-    """
-    global reconnection_watcher_active
+    while True:
+        try:
+            server_ws = websocket.WebSocketApp(
+                SERVER_WS_URL,
+                on_open=on_server_open,
+                on_message=on_server_message,
+                on_error=on_server_error,
+                on_close=on_server_close
+            )
+            server_ws.run_forever()
+        except Exception as e:
+            logging.error(f"Excepción en connect_to_server_ws: {e}")
+        logging.warning("Conexión WebSocket con el servidor cerrada. Reintentando en 5 segundos...")
+        time.sleep(5)
 
-    start_time = time.time()
-    while time.time() - start_time < RECONNECTION_TIMEOUT:
-        if is_connection_successful():
-            # Reconexión exitosa
-            message_text = "Se ha reiniciado el firmware de la impresora y se ha reestablecido la conexión con éxito."
-            add_notification(message_text)
-            break
-        else:
-            # Esperar antes de volver a intentar
-            time.sleep(2)
-    else:
-        # Tiempo de espera agotado, reconexión fallida
-        message_text = "Se ha reiniciado el firmware de la impresora pero no se ha establecido conexión."
-        add_notification(message_text)
+def on_server_open(ws):
+    logging.info("Conexión WebSocket con el servidor establecida")
+    # Enviar un mensaje inicial si es necesario
 
-    reconnection_watcher_active = False  # Resetear la bandera
+def on_server_message(ws, message):
+    # Manejar mensajes entrantes del servidor si es necesario
+    logging.info(f"Mensaje recibido del servidor: {message}")
+
+def on_server_error(ws, error):
+    logging.error(f"Error en WebSocket con el servidor: {error}")
+
+def on_server_close(ws, close_status_code, close_msg):
+    logging.warning("Conexión WebSocket con el servidor cerrada")
 
 if __name__ == "__main__":
     initialize_file_list()
@@ -663,7 +650,11 @@ if __name__ == "__main__":
     notification_thread = threading.Thread(target=process_notifications, daemon=True)
     notification_thread.start()
 
-    # Iniciar la conexión WebSocket con reconexión automática
+    # Iniciar la conexión WebSocket con el servidor
+    server_ws_thread = threading.Thread(target=connect_to_server_ws, daemon=True)
+    server_ws_thread.start()
+
+    # Iniciar la conexión WebSocket con Klipper
     websocket_thread = threading.Thread(target=connect_websocket, daemon=True)
     websocket_thread.start()
 
@@ -675,4 +666,4 @@ if __name__ == "__main__":
         logging.info("Conexión cerrada por el usuario")
         # Limpiar el RUNNING_FLAG
         clear_running_flag()
-        os._exit(0)  # Forzar la salida de todos los hilos
+        os._exit(0)

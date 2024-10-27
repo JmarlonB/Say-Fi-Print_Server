@@ -7,7 +7,7 @@ KLIPPY_LOG="/home/pi/printer_data/logs/klippy.log"
 SERVICE_NAME="event_listener.service"
 
 # Archivo de log para este script
-SCRIPT_LOG="/opt/Sci-Fy-Print/monitor_restart.log"
+SCRIPT_LOG="/opt/Say-Fi-Print/monitor_restart.log"
 
 # Función para reiniciar el servicio
 restart_service() {

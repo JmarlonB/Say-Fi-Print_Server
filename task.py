@@ -4,9 +4,8 @@ import json
 
 
 url="http://localhost:5000"
-whatsapp_token = 'EAAEfud6kh9oBO9gCkPZCyczjW2J0YleO5BZABzTIBxwLTM1KQLHy6vNtOZAp68opuHRoP36jaZB2j20B2GbAR6OI5J2TwIJZCTH4Lt2vcYD5lfUByjD0rd8DQkHMkMCBCIzeybKJMqJV4e6tHHcCDYZA8NxuLkIiQLFF5iBESiyJc3sESARf0pdFllWI2b62GN'
-
-whatsapp_url = 'https://graph.facebook.com/v19.0/255761674285763/messages'
+whatsapp_token = ""
+whatsapp_url = ""
 # Función modificada para enviar mensajes a WhatsApp usando el servidor personalizado
 def enviar_mensaje(number, text):
     # Endpoint del servidor al que se enviarán el texto y el número

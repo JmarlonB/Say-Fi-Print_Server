@@ -1,5 +1,5 @@
 #!/bin/bash
-# /opt/Sci-Fy-Print/start_event_listener.sh
+# /opt/Say-Fi-Print/start_event_listener.sh
 
 # Nombre del proceso
 PROCESS_NAME="event_listener.py"
@@ -12,10 +12,10 @@ then
 fi
 
 # Activar el entorno virtual
-source /opt/Sci-Fy-Print/SFPrint/bin/activate
+source /opt/Say-Fi-Print/SFPrint/bin/activate
 
-export PATH=/opt/Sci-Fy-Print/SFPrint/bin:/usr/bin
+export PATH=/opt/Say-Fi-Print/SFPrint/bin:/usr/bin
 
 # Ejecutar el event listener
-python /opt/Sci-Fy-Print/event_listener.py
+python /opt/Say-Fi-Print/event_listener.py
 

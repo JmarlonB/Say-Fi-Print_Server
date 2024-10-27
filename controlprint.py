@@ -59,7 +59,7 @@ class LLM:
         modelo=os.getenv("MODELO", "gpt-4o-mini")
         
         # Leer las instrucciones desde el archivo rol.txt
-        instructions_file = '/opt/Sci-Fy-Print/rol.txt'
+        instructions_file = '/opt/Say-Fi-Print/rol.txt'
         try:
             with open(instructions_file, 'r', encoding='utf-8') as f:
                 instructions = f.read()
@@ -82,7 +82,7 @@ class LLM:
         modelo=os.getenv("MODELO", "gpt-4o-mini")
         
         # Leer las instrucciones desde el archivo rol.txt
-        instructions_file = '/opt/Sci-Fy-Print/rol.txt'
+        instructions_file = '/opt/Say-Fi-Print/rol.txt'
         try:
             with open(instructions_file, 'r', encoding='utf-8') as f:
                 instructions = f.read()
