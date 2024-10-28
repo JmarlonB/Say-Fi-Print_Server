@@ -2,7 +2,7 @@ sudo apt update
 sudo apt install ffmpeg
 sudo apt install bluetooth bluez bluez-tools rfkill
 sudo apt install pulseaudio pulseaudio-module-bluetooth
-
+sudo apt install -y portaudio19-dev
 
 #sudo mv /home/pi/Say-Fi-Print /opt/Say-Fi-Print
 
