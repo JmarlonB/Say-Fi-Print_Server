@@ -1,5 +1,7 @@
 # Say-Fi-Print_Server
 
+
+```shell
 # Descargar el repositorio Say-Fi-Print_Server desde GitHub
 cd /tmp
 wget https://github.com/JmarlonB/Say-Fi-Print_Server/archive/refs/heads/main.zip
@@ -16,3 +18,4 @@ cd /opt/Say-Fi-Print
 # Ejecutar el script de instalación
 sudo chmod +x /opt/Say-Fi-Print/install.sh
 sudo /opt/Say-Fi-Print/install.sh
+```
