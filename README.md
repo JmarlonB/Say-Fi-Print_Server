@@ -6,6 +6,7 @@
 #### *Una SBC con Klipper y Moonraker instalados para el servidor.
 #### *Sistemas operativos Windows o Linux para el cliente.
 #### *Recomendamos usar claves Api de Open AI y GROQ para disfrutar de todo el potencial de esta aplicacion.
+#### *Parlantes para escuchar desde el servidor.
 
 
 ## Instalacion.
