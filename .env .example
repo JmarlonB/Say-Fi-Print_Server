@@ -1,7 +1,7 @@
+SERVER_URL=domain.local
+PORT=80
+API_KEY=1234abcd-5678-efgh-9101-ijklmnopqrst
 OPENAI_API_KEY=
 GROQ_API_KEY=
-API_KEY=1234abcd-5678-efgh-9101-ijklmnopqrst
-SERVER_URL=localhost
-PORT=80
 ASSISTANT=Angie
-MODELO=gpt-4o-mini
+MODELO=gpt-4o-mini 
