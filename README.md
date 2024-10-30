@@ -9,7 +9,7 @@
 #### *Parlantes para escuchar desde el servidor.
 
 
-## Instalacion.
+## Instalacion via ssh.
 
 ```shell
 # Descargar el repositorio Say-Fi-Print_Server desde GitHub
