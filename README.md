@@ -28,6 +28,15 @@ cd /opt/Say-Fi-Print
 sudo chmod +x /opt/Say-Fi-Print/install.sh
 sudo /opt/Say-Fi-Print/install.sh
 ```
+
+## Uso
+
+#### En windows ejecutar el aceso directo en el escritorio llamado SFPrint.
+#### En linux Pueden ejecutar el aceso directo con nombre SFPrint o pueden llamarlo desde el terminal ecribiendo SFprint.
+#### Al abrirlo por primera vez hacer clic en configurar, ahi deben de ingresar la ip o el nombre de dominio del servidor, 
+#### el puerto, la api key principal, la de openai y la de groq, tambien el nombre del asistente el modelo de lenguaje y el rol que asumira el asistente.
+#### ¡Y a Disfrutar!
+
 ## Consideraciones Adicionales
 
 #### Tanto el cliente como el servidor van por defecto con una api key generica pueden asignarle la apikey de moonraker si cean una o asignarle una nueva y completamente diferente lo cual recomendamos.
