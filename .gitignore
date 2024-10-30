@@ -10,7 +10,7 @@ SFPrint/
 
 # Archivos de base de datos
 *.db.db
-.env
+
 # Archivos de temporales
 temp_audio.wav
 config.json
